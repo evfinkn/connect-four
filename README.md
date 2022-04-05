@@ -1,4 +1,4 @@
-# connect-four
+# Connect Four
 Connect Four made using Pygame
  
 ## Installation
