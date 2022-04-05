@@ -6,7 +6,7 @@ pygame.init()
 random.seed()
 
 # Create the variables for the size of the grid, extra space on sides, and screen
-slotSize = 180
+slotSize = 50
 width = slotSize * 7
 extraSpace = slotSize // 2
 height = slotSize * 6
