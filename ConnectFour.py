@@ -116,40 +116,44 @@ def find_spot(board, mouse_pos):
 
 # Searches for any wins (4 coins next to each other vertically, horizontally, or diagonally)
 def find_win(board):
+    def compare_coins(i1, j1, i2, j2):
+        change_i = (i2 - i1) // 3
+        change_j = (j2 - j1) // 3
+        return board[i1][j1] \
+            == board[i1 + change_i][j1 + change_j] \
+            == board[i1 + (2 * change_i)][j1 + (2 * change_j)] \
+            == board[i2][j2]
+
     for i in range(len(board) - 1, -1, -1):
         for j in range(len(board[i]) - 1, -1, -1):
-            if board[i][j] != BACKGROUND_COLOR:
-                # The if statements prevent out of bounds errors from the list
-                if i <= 2 and j <= 3:
-                    # Compare the slots next to each other
-                    if board[i][j] == board[i + 1][j + 1] == board[i + 2][j + 2] == board[i + 3][j + 3]:
-                        # Return the necessary information for the win_screen function if a win is found
-                        return {"color": board[i][j],
-                                "point1": (j * slot_size + extra_space + slot_size // 2,
-                                           i * slot_size + extra_space + slot_size // 2),
-                                "point2": ((j + 3) * slot_size + extra_space + slot_size // 2,
-                                           (i + 3) * slot_size + extra_space + slot_size // 2)}
-                if i <= 2 and j >= 3:
-                    if board[i][j] == board[i + 1][j - 1] == board[i + 2][j - 2] == board[i + 3][j - 3]:
-                        return {"color": board[i][j],
-                                "point1": (j * slot_size + extra_space + slot_size // 2,
-                                           i * slot_size + extra_space + slot_size // 2),
-                                "point2": ((j - 3) * slot_size + extra_space + slot_size // 2,
-                                           (i + 3) * slot_size + extra_space + slot_size // 2)}
-                if i <= 2:
-                    if board[i][j] == board[i + 1][j] == board[i + 2][j] == board[i + 3][j]:
-                        return {"color": board[i][j],
-                                "point1": (j * slot_size + extra_space + slot_size // 2,
-                                           i * slot_size + extra_space + slot_size // 2),
-                                "point2": (j * slot_size + extra_space + slot_size // 2,
-                                           (i + 3) * slot_size + extra_space + slot_size // 2)}
-                if j <= 3:
-                    if board[i][j] == board[i][j + 1] == board[i][j + 2] == board[i][j + 3]:
-                        return {"color": board[i][j],
-                                "point1": (j * slot_size + extra_space + slot_size // 2,
-                                           i * slot_size + extra_space + slot_size // 2),
-                                "point2": ((j + 3) * slot_size + extra_space + slot_size // 2,
-                                           i * slot_size + extra_space + slot_size // 2)}
+            if board[i][j] == BACKGROUND_COLOR:
+                continue    # prevents another indentation level
+            # The if statements prevent out of bounds errors
+            if i <= 2:
+                # vertical win
+                if compare_coins(i, j, i + 3, j):
+                    return {"color": board[i][j],
+                            "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
+                            "point2": ((j + 1) * slot_size, (i + 4) * slot_size)
+                            }
+                elif j <= 3 and compare_coins(i, j, i + 3, j + 3):
+                    # Negative slope diagonal win
+                    return {"color": board[i][j],
+                            "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
+                            "point2": ((j + 4) * slot_size, (i + 4) * slot_size)
+                            }
+                elif j >= 3 and compare_coins(i, j, i + 3, j - 3):
+                    # Positive slope diagonal win
+                    return {"color": board[i][j],
+                            "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
+                            "point2": ((j - 2) * slot_size, (i + 4) * slot_size)
+                            }
+            elif j <= 3 and compare_coins(i, j, i, j + 3):
+                # Horizontal win
+                return {"color": board[i][j],
+                        "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
+                        "point2": ((j + 4) * slot_size, (i + 1) * slot_size)
+                        }
     return None
 
 
