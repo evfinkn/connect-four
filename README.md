@@ -1,6 +1,7 @@
 # Connect Four
 Connect Four made using Pygame
- 
+###### Note – Currently being overhauled because I wrote it in high school
+
 ## Installation
 Download ConnectFour.py and move to any directory. The game will make a text file to save the game, so you may want to put the py file into its own directory.
 Make sure you have the Pygame module installed. Installation instructions can be found [here](https://www.pygame.org/wiki/GettingStarted).
