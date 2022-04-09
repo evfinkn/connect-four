@@ -1,7 +1,7 @@
 import pygame
 # https://www.pygame.org
 import random
-from copy import deepcopy
+import os
 
 pygame.init()
 random.seed()
@@ -17,8 +17,6 @@ LOAD_GAME_BUTTON_COLOR = GRID_COLOR
 P1_COIN_COLOR = (255, 0, 0)
 P2_COIN_COLOR = (255, 255, 0)
 COLOR_NAMES = {P1_COIN_COLOR: "red", P2_COIN_COLOR: "yellow"}
-
-EMPTY_GRID = [[BACKGROUND_COLOR for _ in range(7)] for _ in range(6)]
 
 # Create the variables for the size of the grid, extra space on sides, and screen
 slot_size = 50
@@ -158,7 +156,7 @@ def find_win(board):
 
 
 # Writes the grid to a file in order to save the game
-def file_writer(file_path, board):
+def save_game(file_path, board):
     with open(file_path, "w") as file:
         for i in range(len(board)):
             for j in range(len(board[i])):
@@ -168,24 +166,27 @@ def file_writer(file_path, board):
 
 
 # Reads the file in order to load the game
-def file_reader(file_path):
-    grid = []
-    with open(file_path, "r") as file:
-        for i in range(6):
-            grid.append([])
-            for j in range(7):
-                # [:-1] to ignore \n
-                red = int(file.readline()[:-1])
-                green = int(file.readline()[:-1])
-                blue = int(file.readline()[:-1])
-                grid[i].append((red, green, blue))
+def load_game(file_path):
+    try:
+        grid = []
+        with open(file_path, "r") as file:
+            for i in range(6):
+                grid.append([])
+                for j in range(7):
+                    # [:-1] to ignore \n
+                    red = int(file.readline()[:-1])
+                    green = int(file.readline()[:-1])
+                    blue = int(file.readline()[:-1])
+                    grid[i].append((red, green, blue))
+    except FileNotFoundError:
+        grid = [[BACKGROUND_COLOR for _ in range(7)] for _ in range(6)]
     return grid
 
 
 # The main game function
 def main_game(screen, board=None):
     if board is None:
-        board = deepcopy(EMPTY_GRID)
+        board = [[BACKGROUND_COLOR for _ in range(7)] for _ in range(6)]
     main_loop = True
     turn = random.choice((-1, 1))
 
@@ -196,7 +197,7 @@ def main_game(screen, board=None):
         for event in pygame.event.get():
             # If the game is exited out of OR the esc key is pressed, save and end the game
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                file_writer(FILE_PATH, board)
+                save_game(FILE_PATH, board)
                 main_loop = False
             # If mouseclick, find the location and set that spot to the color of the coin if it's valid
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -211,7 +212,10 @@ def main_game(screen, board=None):
         pygame.display.flip()
         winner = find_win(board)
         if winner is not None:
-            file_writer(FILE_PATH, EMPTY_GRID)  # write to file with
+            try:
+                os.remove(FILE_PATH)    # delete save file because game has been won
+            except FileNotFoundError:
+                pass    # file already doesn't exist, so we don't need to do anything
             win_screen(screen, board, winner["color"], winner["point1"], winner["point2"])
             main_loop = False
 
@@ -281,7 +285,7 @@ def main_menu(screen):
                         main_loop = False
                     # Load the saved game if click on Load Game button
                     if lg_button.collidepoint(pos):
-                        grid = file_reader(FILE_PATH)
+                        grid = load_game(FILE_PATH)
                         main_game(screen, grid)
                         main_loop = False
 
