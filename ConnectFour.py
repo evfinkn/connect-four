@@ -243,8 +243,7 @@ def win_screen(screen, winning_board, winner, start_pos, end_pos):
                     main_game(screen)
                     main_loop = False
         # Make the color of the button lighter if the mouse is over it
-        pos = pygame.mouse.get_pos()
-        if ng_button.collidepoint(pos):
+        if ng_button.collidepoint(pos := pygame.mouse.get_pos()):
             NEW_GAME_BUTTON_COLOR = LIGHTER_GRID_COLOR
         elif NEW_GAME_BUTTON_COLOR != GRID_COLOR:
             NEW_GAME_BUTTON_COLOR = GRID_COLOR
@@ -257,8 +256,7 @@ def main_menu(screen):
     while main_loop:
         CLOCK.tick(FPS)
 
-        pos = pygame.mouse.get_pos()
-        if ng_button.collidepoint(pos):
+        if ng_button.collidepoint(pos := pygame.mouse.get_pos()):
             NEW_GAME_BUTTON_COLOR = LIGHTER_GRID_COLOR
         elif NEW_GAME_BUTTON_COLOR != GRID_COLOR:
             NEW_GAME_BUTTON_COLOR = GRID_COLOR
