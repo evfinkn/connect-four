@@ -225,6 +225,14 @@ def win_screen(screen, winning_board, winner, start_pos, end_pos):
     global NEW_GAME_BUTTON_COLOR
     main_loop = True
     while main_loop:
+        screen.fill(BACKGROUND_COLOR)
+        draw_board(screen, winning_board)
+        # pygame.draw.line(surface, color, start_pos, end_pos, width)
+        pygame.draw.line(screen, BACKGROUND_COLOR, start_pos, end_pos, 5)
+        draw_button(screen, [ng_button], [NEW_GAME_BUTTON_COLOR])
+        screen.blit(ng_button_text, ng_button_text_rect)
+        pygame.display.flip()
+        
         CLOCK.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
@@ -240,14 +248,6 @@ def win_screen(screen, winning_board, winner, start_pos, end_pos):
             NEW_GAME_BUTTON_COLOR = LIGHTER_GRID_COLOR
         elif NEW_GAME_BUTTON_COLOR != GRID_COLOR:
             NEW_GAME_BUTTON_COLOR = GRID_COLOR
-
-        screen.fill(BACKGROUND_COLOR)
-        draw_board(screen, winning_board)
-        # pygame.draw.line(surface, color, start_pos, end_pos, width)
-        pygame.draw.line(screen, BACKGROUND_COLOR, start_pos, end_pos, 5)
-        draw_button(screen, [ng_button], [NEW_GAME_BUTTON_COLOR])
-        screen.blit(ng_button_text, ng_button_text_rect)
-        pygame.display.flip()
 
 
 # The function to run the main menu screen
