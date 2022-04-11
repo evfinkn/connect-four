@@ -1,5 +1,6 @@
 import pygame
 # https://www.pygame.org
+import pygameutil
 import random
 import os
 
@@ -50,39 +51,32 @@ pygame.draw.circle(grid_surface, BACKGROUND_COLOR,
                    (slot_size // 2, slot_size // 2),
                    (slot_size // 2) - (slot_size // 20))
 
-# Variables for the title text
-# pygame.font.Font(filename, size)
-TITLE_FONT = pygame.font.Font("freesansbold.ttf", slot_size)
-# Font.render(text, antialias, color)
-title = TITLE_FONT.render("Connect Four", True, GRID_COLOR)
-title_rect = title.get_rect(
-    center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 4))
+title = pygameutil.Text((None, slot_size), "Connect Four", GRID_COLOR,
+                        center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 4))
 
 # Font for the text on buttons
-BUTTON_FONT = pygame.font.Font("freesansbold.ttf", slot_size // 2)
+BUTTON_FONT = pygame.font.Font(pygame.font.get_default_font(), slot_size // 2)
 
-# The text for the new game button
-ng_button_text = BUTTON_FONT.render("New Game", True, BACKGROUND_COLOR)
-ng_button_text_rect = ng_button_text.get_rect(
-    center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 2))
+new_game_text = pygameutil.Text(BUTTON_FONT, "New Game", BACKGROUND_COLOR,
+                                center=((width + extra_space * 2) // 2,
+                                        (height + extra_space * 2) // 2))
+new_game_rect = pygame.Rect((width + extra_space * 2) // 2 - int(slot_size * 1.5),
+                            (height + extra_space * 2) // 2 - extra_space,
+                            slot_size * 3, slot_size)
+new_game_button = pygameutil.Button(new_game_text, new_game_rect, GRID_COLOR, LIGHTER_GRID_COLOR)
 
-# The text for the load game button
-lg_button_text = BUTTON_FONT.render("Load Game", True, BACKGROUND_COLOR)
-lg_button_text_rect = lg_button_text.get_rect(
-    center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 2 + extra_space * 3))
+load_game_text = pygameutil.Text(BUTTON_FONT, "Load Game", BACKGROUND_COLOR,
+                                 center=((width + extra_space * 2) // 2,
+                                         (height + extra_space * 2) // 2 + extra_space * 3))
+load_game_text.center = ((width + extra_space * 2) // 2, (height + extra_space * 2) // 2 + extra_space * 3)
+load_game_rect = pygame.Rect((width + extra_space * 2) // 2 - int(slot_size * 1.5),
+                             (height + extra_space * 2) // 2 + extra_space * 2,
+                             slot_size * 3, slot_size)
+load_game_button = pygameutil.Button(load_game_text, load_game_rect, GRID_COLOR, LIGHTER_GRID_COLOR)
 
 # The CLOCK and FPS
 CLOCK = pygame.time.Clock()
 FPS = 60
-
-# The rects and colors for the buttons and color
-# pygame.Rect(left, top, width, height
-ng_button = pygame.Rect((width + extra_space * 2) // 2 - int(slot_size * 1.5),
-                        (height + extra_space * 2) // 2 - extra_space,
-                        slot_size * 3, slot_size)
-lg_button = pygame.Rect((width + extra_space * 2) // 2 - int(slot_size * 1.5),
-                        (height + extra_space * 2) // 2 + extra_space * 2,
-                        slot_size * 3, slot_size)
 
 
 # Draw the board
@@ -99,7 +93,6 @@ def draw_button(surface, buttons, button_colors):
     for x in range(len(buttons)):
         # pygame.draw_rect(surface, color, rect)
         pygame.draw.rect(surface, button_colors[x], buttons[x])
-    surface.blit(surface, (0, 0))
 
 
 # Finds the spot that the coin is placed on mouse click
@@ -166,7 +159,7 @@ def save_game(file_path, board):
 
 
 # Reads the file in order to load the game
-def load_game(file_path):
+def load_game(file_path, screen):
     try:
         grid = []
         with open(file_path, "r") as file:
@@ -180,7 +173,7 @@ def load_game(file_path):
                     grid[i].append((red, green, blue))
     except FileNotFoundError:
         grid = [[BACKGROUND_COLOR for _ in range(7)] for _ in range(6)]
-    return grid
+    main_game(screen, grid)
 
 
 # The main game function
@@ -229,63 +222,47 @@ def win_screen(screen, winning_board, winner, start_pos, end_pos):
         draw_board(screen, winning_board)
         # pygame.draw.line(surface, color, start_pos, end_pos, width)
         pygame.draw.line(screen, BACKGROUND_COLOR, start_pos, end_pos, 5)
-        draw_button(screen, [ng_button], [NEW_GAME_BUTTON_COLOR])
-        screen.blit(ng_button_text, ng_button_text_rect)
+        new_game_button.draw(screen)
         pygame.display.flip()
-        
+
         CLOCK.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 main_loop = False
             # If mouseclick on the New Game button, start the game
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 and ng_button.collidepoint(pygame.mouse.get_pos()):
-                    main_game(screen)
+                if event.button == 1 and new_game_button:
+                    new_game_button.click()
                     main_loop = False
-        # Make the color of the button lighter if the mouse is over it
-        if ng_button.collidepoint(pos := pygame.mouse.get_pos()):
-            NEW_GAME_BUTTON_COLOR = LIGHTER_GRID_COLOR
-        elif NEW_GAME_BUTTON_COLOR != GRID_COLOR:
-            NEW_GAME_BUTTON_COLOR = GRID_COLOR
 
 
 # The function to run the main menu screen
 def main_menu(screen):
-    global NEW_GAME_BUTTON_COLOR, LOAD_GAME_BUTTON_COLOR
     main_loop = True
+    new_game_button.onclick = main_game
+    new_game_button.args = (screen,)
+    load_game_button.onclick = load_game
+    load_game_button.args = (FILE_PATH, screen)
     while main_loop:
         CLOCK.tick(FPS)
 
-        if ng_button.collidepoint(pos := pygame.mouse.get_pos()):
-            NEW_GAME_BUTTON_COLOR = LIGHTER_GRID_COLOR
-        elif NEW_GAME_BUTTON_COLOR != GRID_COLOR:
-            NEW_GAME_BUTTON_COLOR = GRID_COLOR
-        if lg_button.collidepoint(pos):
-            LOAD_GAME_BUTTON_COLOR = LIGHTER_GRID_COLOR
-        elif LOAD_GAME_BUTTON_COLOR != GRID_COLOR:
-            LOAD_GAME_BUTTON_COLOR = GRID_COLOR
-
         screen.fill(BACKGROUND_COLOR)
-        screen.blit(title, title_rect)
-        draw_button(screen, [ng_button, lg_button], [NEW_GAME_BUTTON_COLOR, LOAD_GAME_BUTTON_COLOR])
-        screen.blit(ng_button_text, ng_button_text_rect)
-        screen.blit(lg_button_text, lg_button_text_rect)
+        title.draw(screen)
+        new_game_button.draw(screen)
+        load_game_button.draw(screen)
         pygame.display.flip()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 main_loop = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    pos = pygame.mouse.get_pos()
-                    if ng_button.collidepoint(pos):
-                        main_game(screen)
-                        main_loop = False
-                    # Load the saved game if click on Load Game button
-                    if lg_button.collidepoint(pos):
-                        grid = load_game(FILE_PATH)
-                        main_game(screen, grid)
-                        main_loop = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if new_game_button:
+                    new_game_button.click()
+                    main_loop = False
+                # Load the saved game if click on Load Game button
+                if load_game_button:
+                    load_game_button.click()
+                    main_loop = False
 
 
 # Create the variable for the screen and start the game
