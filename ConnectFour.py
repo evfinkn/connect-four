@@ -26,56 +26,62 @@ extra_space = slot_size // 2
 height = slot_size * 6
 
 # Coin surfaces
-coin_surfaces = {P1_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
-                 P2_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
-                 BACKGROUND_COLOR: pygame.Surface((slot_size, slot_size))}
+coin_surfaces = {
+    P1_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
+    P2_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
+    BACKGROUND_COLOR: pygame.Surface((slot_size, slot_size))
+}
 for coin_color, coin_surface in coin_surfaces.items():
     coin_surface.fill(BACKGROUND_COLOR)
     coin_surface.set_colorkey(BACKGROUND_COLOR)
-    # pygame.draw.circle(surface, color, pos, radius)
     pygame.draw.circle(
         coin_surface, coin_color,
         (slot_size // 2, slot_size // 2),
         (slot_size // 2) - (slot_size // 20)
     )
 
-# GRID_SURFACE is a square in the color of the grid. It is then blotted onto the
-# screen later in the drawBackground function. This forms the Connect 4 board
-slot_surface = pygame.Surface((slot_size, slot_size))
+# slot_surface is
+slot_surface = pygame.Surface((slot_size, slot_size))   # one empty square of the board, used to form GRID_SURFACE
 slot_surface.fill(GRID_COLOR)
-# Any pixels with BACKGROUND_COLOR will be transparent when blitted
-# pygame.draw.circle(surface, color, pos, radius)
-# draw white circle to represent empty slot
-pygame.draw.circle(slot_surface, BACKGROUND_COLOR,
-                   (slot_size // 2, slot_size // 2),
-                   (slot_size // 2) - (slot_size // 20))
-GRID_SURFACE = pygame.Surface((width, height))
+pygame.draw.circle(
+    slot_surface, BACKGROUND_COLOR,
+    (slot_size // 2, slot_size // 2),
+    (slot_size // 2) - (slot_size // 20)
+)
+GRID_SURFACE = pygame.Surface((width, height))      # The actual Connect Four board
 GRID_SURFACE.fill(BACKGROUND_COLOR)
 GRID_SURFACE.set_colorkey(BACKGROUND_COLOR)
 for x in range(6):
     for y in range(7):
         GRID_SURFACE.blit(slot_surface, (slot_size * y, slot_size * x))
 
-title = pygameutil.Text((pygame.font.get_default_font(), slot_size), "Connect Four", GRID_COLOR,
-                        center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 4))
+title = pygameutil.Text(
+    (pygame.font.get_default_font(), slot_size), "Connect Four", GRID_COLOR,
+    center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 4)
+)
 
 BUTTON_FONT = pygame.font.Font(pygame.font.get_default_font(), slot_size // 2)
+
 # Creating the button for starting a new game
-new_game_text = pygameutil.Text(BUTTON_FONT, "New Game", BACKGROUND_COLOR,
-                                center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 2))
-new_game_rect = pygame.Rect((width + extra_space * 2) // 2 - int(slot_size * 1.5),
-                            (height + extra_space * 2) // 2 - extra_space,
-                            slot_size * 3, slot_size)
+new_game_text = pygameutil.Text(
+    BUTTON_FONT, "New Game", BACKGROUND_COLOR,
+    center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 2)
+)
+new_game_rect = pygame.Rect(
+    (width + extra_space * 2) // 2 - int(slot_size * 1.5),
+    (height + extra_space * 2) // 2 - extra_space, slot_size * 3, slot_size
+)
 new_game_button = pygameutil.Button(new_game_text, new_game_rect, GRID_COLOR, LIGHTER_GRID_COLOR)
 
 # Creating the button for loading the game
-load_game_text = pygameutil.Text(BUTTON_FONT, "Load Game", BACKGROUND_COLOR,
-                                 center=((width + extra_space * 2) // 2,
-                                         (height + extra_space * 2) // 2 + extra_space * 3))
-load_game_text.center = ((width + extra_space * 2) // 2, (height + extra_space * 2) // 2 + extra_space * 3)
-load_game_rect = pygame.Rect((width + extra_space * 2) // 2 - int(slot_size * 1.5),
-                             (height + extra_space * 2) // 2 + extra_space * 2,
-                             slot_size * 3, slot_size)
+load_game_text = pygameutil.Text(
+    BUTTON_FONT, "Load Game", BACKGROUND_COLOR,
+    center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 2 + extra_space * 3)
+)
+load_game_rect = pygame.Rect(
+    (width + extra_space * 2) // 2 - int(slot_size * 1.5),
+    (height + extra_space * 2) // 2 + extra_space * 2, slot_size * 3, slot_size
+)
 load_game_button = pygameutil.Button(load_game_text, load_game_rect, GRID_COLOR, LIGHTER_GRID_COLOR)
 
 CLOCK = pygame.time.Clock()
@@ -110,28 +116,32 @@ def find_win(board):
             if i <= 2:
                 # vertical win
                 if compare_coins(i, j, i + 3, j):
-                    return {"color": board[i][j],
-                            "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
-                            "point2": ((j + 1) * slot_size, (i + 4) * slot_size)
-                            }
-                elif j <= 3 and compare_coins(i, j, i + 3, j + 3):
-                    # Negative slope diagonal win
-                    return {"color": board[i][j],
-                            "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
-                            "point2": ((j + 4) * slot_size, (i + 4) * slot_size)
-                            }
-                elif j >= 3 and compare_coins(i, j, i + 3, j - 3):
-                    # Positive slope diagonal win
-                    return {"color": board[i][j],
-                            "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
-                            "point2": ((j - 2) * slot_size, (i + 4) * slot_size)
-                            }
-            elif j <= 3 and compare_coins(i, j, i, j + 3):
-                # Horizontal win
-                return {"color": board[i][j],
+                    return {
+                        "color": board[i][j],
                         "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
-                        "point2": ((j + 4) * slot_size, (i + 1) * slot_size)
-                        }
+                        "point2": ((j + 1) * slot_size, (i + 4) * slot_size)
+                    }
+                # Negative slope diagonal win
+                elif j <= 3 and compare_coins(i, j, i + 3, j + 3):
+                    return {
+                        "color": board[i][j],
+                        "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
+                        "point2": ((j + 4) * slot_size, (i + 4) * slot_size)
+                    }
+                # Positive slope diagonal win
+                elif j >= 3 and compare_coins(i, j, i + 3, j - 3):
+                    return {
+                        "color": board[i][j],
+                        "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
+                        "point2": ((j - 2) * slot_size, (i + 4) * slot_size)
+                    }
+            # Horizontal win
+            elif j <= 3 and compare_coins(i, j, i, j + 3):
+                return {
+                    "color": board[i][j],
+                    "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
+                    "point2": ((j + 4) * slot_size, (i + 1) * slot_size)
+                }
     return None
 
 
@@ -161,6 +171,35 @@ def load_game(file_path, screen):
     except FileNotFoundError:
         grid = [[BACKGROUND_COLOR for _ in range(7)] for _ in range(6)]
     main_game(screen, grid)
+
+
+# The function to run the main menu screen
+def main_menu(screen):
+    main_loop = True
+    new_game_button.onclick = main_game
+    new_game_button.args = (screen,)
+    load_game_button.onclick = load_game
+    load_game_button.args = (FILE_PATH, screen)
+    while main_loop:
+        CLOCK.tick(FPS)
+
+        screen.fill(BACKGROUND_COLOR)
+        title.draw(screen)
+        new_game_button.draw(screen)
+        load_game_button.draw(screen)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                main_loop = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if new_game_button:
+                    new_game_button.click()
+                    main_loop = False
+                # Load the saved game if click on Load Game button
+                elif load_game_button:
+                    load_game_button.click()
+                    main_loop = False
 
 
 # The main game function
@@ -203,9 +242,11 @@ def main_game(screen, board=None):
             pass    # file already doesn't exist, so we don't need to do anything
         winning_surface = screen.copy()
         pygame.draw.line(winning_surface, BACKGROUND_COLOR, win["point1"], win["point2"], 5)
-        pygame.draw.circle(winning_surface, BACKGROUND_COLOR,
-                           (pygame.mouse.get_pos()[0], 0),
-                           (slot_size // 2) - (slot_size // 20))
+        pygame.draw.circle(
+            winning_surface, BACKGROUND_COLOR,
+            (pygame.mouse.get_pos()[0], 0),
+            (slot_size // 2) - (slot_size // 20)
+        )
         win_screen(screen, winning_surface, win["color"])
         main_loop = False
 
@@ -228,35 +269,6 @@ def win_screen(screen, winning_surface, winner):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and new_game_button:
                     new_game_button.click()
-                    main_loop = False
-
-
-# The function to run the main menu screen
-def main_menu(screen):
-    main_loop = True
-    new_game_button.onclick = main_game
-    new_game_button.args = (screen,)
-    load_game_button.onclick = load_game
-    load_game_button.args = (FILE_PATH, screen)
-    while main_loop:
-        CLOCK.tick(FPS)
-
-        screen.fill(BACKGROUND_COLOR)
-        title.draw(screen)
-        new_game_button.draw(screen)
-        load_game_button.draw(screen)
-        pygame.display.flip()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                main_loop = False
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if new_game_button:
-                    new_game_button.click()
-                    main_loop = False
-                # Load the saved game if click on Load Game button
-                elif load_game_button:
-                    load_game_button.click()
                     main_loop = False
 
 
