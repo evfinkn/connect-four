@@ -33,7 +33,10 @@ class Button:
                  inactive: Any, active: Any,
                  onclick: Callable = None, *args):
         self.text = text
-        self.rect = rect
+        if isinstance(rect, pygame.Rect):
+            self.rect = rect
+        else:
+            self.rect = pygame.Rect(*rect)
         self.inactive = inactive
         self.active = active
         self.onclick = onclick
