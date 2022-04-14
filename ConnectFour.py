@@ -27,44 +27,48 @@ height = slot_size * 6
 
 # Coin surfaces
 coin_surfaces = {P1_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
-                 P2_COIN_COLOR: pygame.Surface((slot_size, slot_size))}
+                 P2_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
+                 BACKGROUND_COLOR: pygame.Surface((slot_size, slot_size))}
 for coin_color, coin_surface in coin_surfaces.items():
     coin_surface.fill(BACKGROUND_COLOR)
+    coin_surface.set_colorkey(BACKGROUND_COLOR)
     # pygame.draw.circle(surface, color, pos, radius)
-    pygame.draw.circle(coin_surface, coin_color,
-                       (slot_size // 2, slot_size // 2),
-                       (slot_size // 2) - (slot_size // 20))
+    pygame.draw.circle(
+        coin_surface, coin_color,
+        (slot_size // 2, slot_size // 2),
+        (slot_size // 2) - (slot_size // 20)
+    )
 
-# Create grid, colors, and surfaces
-# grid = [[BACKGROUND_COLOR for _ in range(7)] for _ in range(6)]
-
-# grid_surface is a square in the color of the grid. It is then blotted onto the
+# GRID_SURFACE is a square in the color of the grid. It is then blotted onto the
 # screen later in the drawBackground function. This forms the Connect 4 board
-grid_surface = pygame.Surface((slot_size, slot_size))
-grid_surface.fill(GRID_COLOR)
+slot_surface = pygame.Surface((slot_size, slot_size))
+slot_surface.fill(GRID_COLOR)
 # Any pixels with BACKGROUND_COLOR will be transparent when blitted
-grid_surface.set_colorkey(BACKGROUND_COLOR)
-
 # pygame.draw.circle(surface, color, pos, radius)
 # draw white circle to represent empty slot
-pygame.draw.circle(grid_surface, BACKGROUND_COLOR,
+pygame.draw.circle(slot_surface, BACKGROUND_COLOR,
                    (slot_size // 2, slot_size // 2),
                    (slot_size // 2) - (slot_size // 20))
+GRID_SURFACE = pygame.Surface((width, height))
+GRID_SURFACE.fill(BACKGROUND_COLOR)
+GRID_SURFACE.set_colorkey(BACKGROUND_COLOR)
+for x in range(6):
+    for y in range(7):
+        GRID_SURFACE.blit(slot_surface, (slot_size * y, slot_size * x))
 
-title = pygameutil.Text((None, slot_size), "Connect Four", GRID_COLOR,
+title = pygameutil.Text((pygame.font.get_default_font(), slot_size), "Connect Four", GRID_COLOR,
                         center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 4))
 
-# Font for the text on buttons
 BUTTON_FONT = pygame.font.Font(pygame.font.get_default_font(), slot_size // 2)
-
+# Creating the button for starting a new game
 new_game_text = pygameutil.Text(BUTTON_FONT, "New Game", BACKGROUND_COLOR,
-                                center=((width + extra_space * 2) // 2,
-                                        (height + extra_space * 2) // 2))
+                                center=((width + extra_space * 2) // 2, (height + extra_space * 2) // 2))
 new_game_rect = pygame.Rect((width + extra_space * 2) // 2 - int(slot_size * 1.5),
                             (height + extra_space * 2) // 2 - extra_space,
                             slot_size * 3, slot_size)
 new_game_button = pygameutil.Button(new_game_text, new_game_rect, GRID_COLOR, LIGHTER_GRID_COLOR)
 
+# Creating the button for loading the game
 load_game_text = pygameutil.Text(BUTTON_FONT, "Load Game", BACKGROUND_COLOR,
                                  center=((width + extra_space * 2) // 2,
                                          (height + extra_space * 2) // 2 + extra_space * 3))
@@ -74,25 +78,8 @@ load_game_rect = pygame.Rect((width + extra_space * 2) // 2 - int(slot_size * 1.
                              slot_size * 3, slot_size)
 load_game_button = pygameutil.Button(load_game_text, load_game_rect, GRID_COLOR, LIGHTER_GRID_COLOR)
 
-# The CLOCK and FPS
 CLOCK = pygame.time.Clock()
 FPS = 60
-
-
-# Draw the board
-def draw_board(surface, board):
-    for i in range(6):
-        for j in range(7):
-            if board[i][j] != (255, 255, 255):
-                surface.blit(coin_surfaces[board[i][j]], (slot_size * j + extra_space, slot_size * i + extra_space))
-            surface.blit(grid_surface, (slot_size * j + extra_space, slot_size * i + extra_space))
-
-
-# Draw the new/load game buttons
-def draw_button(surface, buttons, button_colors):
-    for x in range(len(buttons)):
-        # pygame.draw_rect(surface, color, rect)
-        pygame.draw.rect(surface, button_colors[x], buttons[x])
 
 
 # Finds the spot that the coin is placed on mouse click
@@ -180,6 +167,10 @@ def load_game(file_path, screen):
 def main_game(screen, board=None):
     if board is None:
         board = [[BACKGROUND_COLOR for _ in range(7)] for _ in range(6)]
+    board_surface = GRID_SURFACE.copy()
+    for i in range(6):
+        for j in range(7):
+            board_surface.blit(coin_surfaces[board[i][j]], (slot_size * j, slot_size * i))
     main_loop = True
     turn = random.choice((-1, 1))
 
@@ -196,32 +187,36 @@ def main_game(screen, board=None):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and (spot := find_spot(board, pygame.mouse.get_pos())) != -1:
                     board[spot[0]][spot[1]] = current_color
+                    board_surface.blit(coin_surfaces[board[spot[0]][spot[1]]], (slot_size * spot[1], slot_size * spot[0]))
                     turn *= -1
-        # Reset the screen
         screen.fill(BACKGROUND_COLOR)
         # Draw the coin hovering at the top of the screen
         screen.blit(coin_surfaces[current_color], (pygame.mouse.get_pos()[0] - slot_size // 2, -extra_space))
-        draw_board(screen, board)
+        screen.blit(board_surface, (extra_space, extra_space))
         pygame.display.flip()
-        winner = find_win(board)
-        if winner is not None:
-            try:
-                os.remove(FILE_PATH)    # delete save file because game has been won
-            except FileNotFoundError:
-                pass    # file already doesn't exist, so we don't need to do anything
-            win_screen(screen, board, winner["color"], winner["point1"], winner["point2"])
-            main_loop = False
+        win = find_win(board)
+        if win is None:
+            continue
+        try:
+            os.remove(FILE_PATH)    # delete save file because game has been won
+        except FileNotFoundError:
+            pass    # file already doesn't exist, so we don't need to do anything
+        winning_surface = screen.copy()
+        pygame.draw.line(winning_surface, BACKGROUND_COLOR, win["point1"], win["point2"], 5)
+        pygame.draw.circle(winning_surface, BACKGROUND_COLOR,
+                           (pygame.mouse.get_pos()[0], 0),
+                           (slot_size // 2) - (slot_size // 20))
+        win_screen(screen, winning_surface, win["color"])
+        main_loop = False
 
 
 # The function to run the win screen
-def win_screen(screen, winning_board, winner, start_pos, end_pos):
+def win_screen(screen, winning_surface, winner):
     global NEW_GAME_BUTTON_COLOR
     main_loop = True
     while main_loop:
         screen.fill(BACKGROUND_COLOR)
-        draw_board(screen, winning_board)
-        # pygame.draw.line(surface, color, start_pos, end_pos, width)
-        pygame.draw.line(screen, BACKGROUND_COLOR, start_pos, end_pos, 5)
+        screen.blit(winning_surface, (0, 0))
         new_game_button.draw(screen)
         pygame.display.flip()
 
@@ -260,7 +255,7 @@ def main_menu(screen):
                     new_game_button.click()
                     main_loop = False
                 # Load the saved game if click on Load Game button
-                if load_game_button:
+                elif load_game_button:
                     load_game_button.click()
                     main_loop = False
 
