@@ -13,8 +13,6 @@ FILE_PATH = "grid.txt"    # save file
 BACKGROUND_COLOR = (255, 255, 255)
 GRID_COLOR = (0, 0, 122)
 LIGHTER_GRID_COLOR = (0, 37, 161)
-NEW_GAME_BUTTON_COLOR = GRID_COLOR
-LOAD_GAME_BUTTON_COLOR = GRID_COLOR
 P1_COIN_COLOR = (255, 0, 0)
 P2_COIN_COLOR = (255, 255, 0)
 COLOR_NAMES = {P1_COIN_COLOR: "red", P2_COIN_COLOR: "yellow"}   # Dictionary of names of colors for winning color text
@@ -221,15 +219,13 @@ def main_game(screen, board=None):
         pygame.display.flip()
         if (win := find_win(board)) is None:
             continue
-        else:
-            print(win)
         try:
             os.remove(FILE_PATH)    # delete save file because game has been won
         except FileNotFoundError:
             pass    # file already doesn't exist, so we don't need to do anything
         winning_surface = screen.copy()
         pygame.draw.line(winning_surface, BACKGROUND_COLOR, win["point1"], win["point2"], 5)
-        pygame.draw.circle(
+        pygame.draw.circle(     # draws over the hovering coin at top of screen since game is over
             winning_surface, BACKGROUND_COLOR,
             (pygame.mouse.get_pos()[0], 0),
             (slot_size // 2) - (slot_size // 20)
@@ -240,16 +236,16 @@ def main_game(screen, board=None):
 
 # The function to run the win screen
 def win_screen(screen, winning_surface, winner):
-    global NEW_GAME_BUTTON_COLOR
     main_loop = True
     while main_loop:
-        screen.fill(BACKGROUND_COLOR)
-        screen.blit(winning_surface, (0, 0))
+        screen.fill(BACKGROUND_COLOR)       # reset the screen to be redraw
+        screen.blit(winning_surface, (0, 0))    # draw the board from when the game was won
         new_game_button.draw(screen)
-        pygame.display.flip()
+        pygame.display.flip()      # updates the screen to display what was drawn
 
         CLOCK.tick(FPS)
         for event in pygame.event.get():
+            # if the user quits, exit the loop
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 main_loop = False
             # If mouseclick on the New Game button, start the game
