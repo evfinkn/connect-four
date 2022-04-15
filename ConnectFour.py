@@ -17,7 +17,7 @@ NEW_GAME_BUTTON_COLOR = GRID_COLOR
 LOAD_GAME_BUTTON_COLOR = GRID_COLOR
 P1_COIN_COLOR = (255, 0, 0)
 P2_COIN_COLOR = (255, 255, 0)
-COLOR_NAMES = {P1_COIN_COLOR: "red", P2_COIN_COLOR: "yellow"}
+COLOR_NAMES = {P1_COIN_COLOR: "red", P2_COIN_COLOR: "yellow"}   # Dictionary of names of colors for winning color text
 
 # Create the variables for the size of the grid, extra space on sides, and screen
 slot_size = 50
@@ -26,12 +26,12 @@ extra_space = slot_size // 2
 height = slot_size * 6
 
 # Coin surfaces
-coin_surfaces = {
+coin_surfaces = {   # Dictionary for simplier access, with color as key and Surface as value
     P1_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
     P2_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
     BACKGROUND_COLOR: pygame.Surface((slot_size, slot_size))
 }
-for coin_color, coin_surface in coin_surfaces.items():
+for coin_color, coin_surface in coin_surfaces.items():  # Make surfaces transparent and draw the coin on it
     coin_surface.fill(BACKGROUND_COLOR)
     coin_surface.set_colorkey(BACKGROUND_COLOR)
     pygame.draw.circle(
@@ -103,10 +103,16 @@ def find_win(board):
     def compare_coins(i1, j1, i2, j2):
         change_i = (i2 - i1) // 3
         change_j = (j2 - j1) // 3
-        return board[i1][j1] \
-            == board[i1 + change_i][j1 + change_j] \
-            == board[i1 + (2 * change_i)][j1 + (2 * change_j)] \
-            == board[i2][j2]
+        if (board[i1][j1]
+                == board[i1 + change_i][j1 + change_j]
+                == board[i1 + (2 * change_i)][j1 + (2 * change_j)]
+                == board[i2][j2]):
+            return {
+                "color": COLOR_NAMES[board[i][j]],
+                "point1": ((j1 + 1) * slot_size, (i1 + 1) * slot_size),
+                "point2": ((j2 + 1) * slot_size, (i2 + 1) * slot_size)
+            }
+        return None
 
     for i in range(len(board) - 1, -1, -1):
         for j in range(len(board[i]) - 1, -1, -1):
@@ -114,34 +120,14 @@ def find_win(board):
                 continue    # prevents another indentation level
             # The if statements prevent out of bounds errors
             if i <= 2:
-                # vertical win
-                if compare_coins(i, j, i + 3, j):
-                    return {
-                        "color": board[i][j],
-                        "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
-                        "point2": ((j + 1) * slot_size, (i + 4) * slot_size)
-                    }
-                # Negative slope diagonal win
-                elif j <= 3 and compare_coins(i, j, i + 3, j + 3):
-                    return {
-                        "color": board[i][j],
-                        "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
-                        "point2": ((j + 4) * slot_size, (i + 4) * slot_size)
-                    }
-                # Positive slope diagonal win
-                elif j >= 3 and compare_coins(i, j, i + 3, j - 3):
-                    return {
-                        "color": board[i][j],
-                        "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
-                        "point2": ((j - 2) * slot_size, (i + 4) * slot_size)
-                    }
-            # Horizontal win
-            elif j <= 3 and compare_coins(i, j, i, j + 3):
-                return {
-                    "color": board[i][j],
-                    "point1": ((j + 1) * slot_size, (i + 1) * slot_size),
-                    "point2": ((j + 4) * slot_size, (i + 1) * slot_size)
-                }
+                if (win := compare_coins(i, j, i + 3, j)) is not None:    # vertical win
+                    return win
+                elif j <= 3 and (win := compare_coins(i, j, i + 3, j + 3)) is not None:  # Negative slope diagonal win
+                    return win
+                elif j >= 3 and (win := compare_coins(i, j, i + 3, j - 3)) is not None:  # Positive slope diagonal win
+                    return win
+            elif j <= 3 and (win := compare_coins(i, j, i, j + 3)) is not None:     # Horizontal win
+                return win
     return None
 
 
@@ -233,9 +219,10 @@ def main_game(screen, board=None):
         screen.blit(coin_surfaces[current_color], (pygame.mouse.get_pos()[0] - slot_size // 2, -extra_space))
         screen.blit(board_surface, (extra_space, extra_space))
         pygame.display.flip()
-        win = find_win(board)
-        if win is None:
+        if (win := find_win(board)) is None:
             continue
+        else:
+            print(win)
         try:
             os.remove(FILE_PATH)    # delete save file because game has been won
         except FileNotFoundError:
