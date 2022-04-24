@@ -24,12 +24,12 @@ extra_space = slot_size // 2
 height = slot_size * 6
 
 # Coin surfaces
-coin_surfaces = {   # Dictionary for simplier access, with color as key and Surface as value
+COIN_SURFACES = {   # Dictionary for simplier access, with color as key and Surface as value
     P1_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
     P2_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
     BACKGROUND_COLOR: pygame.Surface((slot_size, slot_size))
 }
-for coin_color, coin_surface in coin_surfaces.items():  # Make surfaces transparent and draw the coin on it
+for coin_color, coin_surface in COIN_SURFACES.items():  # Make surfaces transparent and draw the coin on it
     coin_surface.fill(BACKGROUND_COLOR)
     coin_surface.set_colorkey(BACKGROUND_COLOR)
     pygame.draw.circle(
@@ -38,11 +38,10 @@ for coin_color, coin_surface in coin_surfaces.items():  # Make surfaces transpar
         (slot_size // 2) - (slot_size // 20)
     )
 
-# slot_surface is
-slot_surface = pygame.Surface((slot_size, slot_size))   # one empty square of the board, used to form GRID_SURFACE
-slot_surface.fill(GRID_COLOR)
+SLOT_SURFACE = pygame.Surface((slot_size, slot_size))   # one empty square of the board, used to form GRID_SURFACE
+SLOT_SURFACE.fill(GRID_COLOR)
 pygame.draw.circle(
-    slot_surface, BACKGROUND_COLOR,
+    SLOT_SURFACE, BACKGROUND_COLOR,
     (slot_size // 2, slot_size // 2),
     (slot_size // 2) - (slot_size // 20)
 )
@@ -51,7 +50,7 @@ GRID_SURFACE.fill(BACKGROUND_COLOR)
 GRID_SURFACE.set_colorkey(BACKGROUND_COLOR)
 for x in range(6):
     for y in range(7):
-        GRID_SURFACE.blit(slot_surface, (slot_size * y, slot_size * x))
+        GRID_SURFACE.blit(SLOT_SURFACE, (slot_size * y, slot_size * x))
 
 title = pygameutil.Text(
     (pygame.font.get_default_font(), slot_size), "Connect Four", GRID_COLOR,
@@ -193,7 +192,7 @@ def main_game(screen, board=None):
     board_surface = GRID_SURFACE.copy()
     for i in range(6):
         for j in range(7):
-            board_surface.blit(coin_surfaces[board[i][j]], (slot_size * j, slot_size * i))
+            board_surface.blit(COIN_SURFACES[board[i][j]], (slot_size * j, slot_size * i))
     main_loop = True
     turn = random.choice((-1, 1))
 
@@ -210,11 +209,11 @@ def main_game(screen, board=None):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and (spot := find_spot(board, pygame.mouse.get_pos())) != -1:
                     board[spot[0]][spot[1]] = current_color
-                    board_surface.blit(coin_surfaces[board[spot[0]][spot[1]]], (slot_size * spot[1], slot_size * spot[0]))
+                    board_surface.blit(COIN_SURFACES[board[spot[0]][spot[1]]], (slot_size * spot[1], slot_size * spot[0]))
                     turn *= -1
         screen.fill(BACKGROUND_COLOR)
         # Draw the coin hovering at the top of the screen
-        screen.blit(coin_surfaces[current_color], (pygame.mouse.get_pos()[0] - slot_size // 2, -extra_space))
+        screen.blit(COIN_SURFACES[current_color], (pygame.mouse.get_pos()[0] - slot_size // 2, -extra_space))
         screen.blit(board_surface, (extra_space, extra_space))
         pygame.display.flip()
         if (win := find_win(board)) is None:
