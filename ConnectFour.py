@@ -62,13 +62,13 @@ title.rect.center = (width // 2, height // 4)
 new_game_text = pygameutil.Text((pygame.font.get_default_font(), slot_size // 2), "New Game", BACKGROUND_COLOR)
 new_game_text.rect.center = (width // 2, height // 2)
 new_game_button = pygameutil.Button(new_game_text, GRID_COLOR, LIGHTER_GRID_COLOR)
-new_game_button.rect = pygame.Rect(width // 2 - slot_size * 3 // 2, height // 2 - extra_space, slot_size * 3, slot_size)
+new_game_button.rect = pygame.Rect(width // 2 - slot_size * 3 // 2, height // 2 - slot_size // 2, slot_size * 3, slot_size)
 
 # Creating the button for loading the game
 load_game_text = pygameutil.Text((pygame.font.get_default_font(), slot_size // 2), "Load Game", BACKGROUND_COLOR)
-load_game_text.rect.center = (width // 2, height // 2 + extra_space * 3)
+load_game_text.rect.center = (width // 2, height // 2 + slot_size * 3 // 2)
 load_game_button = pygameutil.Button(load_game_text, GRID_COLOR, LIGHTER_GRID_COLOR)
-load_game_button.rect = pygame.Rect(width // 2 - slot_size * 3 // 2, height // 2 + extra_space * 2, slot_size * 3, slot_size)
+load_game_button.rect = pygame.Rect(width // 2 - slot_size * 3 // 2, height // 2 + slot_size, slot_size * 3, slot_size)
 
 CLOCK = pygame.time.Clock()
 FPS = 60
