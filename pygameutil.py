@@ -26,16 +26,18 @@ class Text:
 
 
 class Button:
-    def __init__(self, text: Text, rect: pygame.Rect | tuple,
-                 inactive: Any, active: Any,
                  onclick: Callable = None, *args):
+    def __init__(self, text: Text, inactive: Any, active: Any,
+                 rect: pygame.Rect | tuple | None = None,
         self.text = text
-        if isinstance(rect, pygame.Rect):
-            self.rect = rect
-        else:
-            self.rect = pygame.Rect(*rect)
         self.inactive = inactive
         self.active = active
+        if isinstance(rect, pygame.Rect):
+            self.rect = rect
+        elif isinstance(rect, tuple):
+            self.rect = pygame.Rect(*rect)
+        else:
+            self.rect = self.text.rect
         self.onclick = onclick
         self.args = args
 
