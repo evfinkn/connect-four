@@ -64,7 +64,7 @@ new_game_button = pygameutil.Button(new_game_text, GRID_COLOR, LIGHTER_GRID_COLO
 new_game_button.rect = pygame.Rect(width // 2 - slot_size * 3 // 2, height // 2 - slot_size // 2, slot_size * 3, slot_size)
 
 # Creating the button for loading the game
-load_game_text = pygameutil.Text((pygame.font.get_default_font(), slot_size // 2), "Load Game", BACKGROUND_COLOR)
+load_game_text = pygameutil.Text(new_game_text.font, "Load Game", BACKGROUND_COLOR)
 load_game_text.rect.center = (width // 2, height // 2 + slot_size * 3 // 2)
 load_game_button = pygameutil.Button(load_game_text, GRID_COLOR, LIGHTER_GRID_COLOR)
 load_game_button.rect = pygame.Rect(width // 2 - slot_size * 3 // 2, height // 2 + slot_size, slot_size * 3, slot_size)
