@@ -15,7 +15,7 @@ GRID_COLOR = (0, 0, 122)
 LIGHTER_GRID_COLOR = (0, 37, 161)
 P1_COIN_COLOR = (255, 0, 0)
 P2_COIN_COLOR = (255, 255, 0)
-COLOR_NAMES = {P1_COIN_COLOR: "red", P2_COIN_COLOR: "yellow"}   # Dictionary of names of colors for winning color text
+COLOR_NAMES = {P1_COIN_COLOR: "Red", P2_COIN_COLOR: "Yellow"}   # Dictionary of names of colors for winning color text
 
 # Create the variables for the size of the grid, extra space on sides, and screen
 slot_size = 50
@@ -84,7 +84,7 @@ def find_spot(board, mouse_pos):
 
 
 # Searches for any wins (4 coins next to each other vertically, horizontally, or diagonally)
-def find_win(board):
+def find_win_or_tie(board):
     def compare_coins(i1, j1, i2, j2):
         change_i = (i2 - i1) // 3
         change_j = (j2 - j1) // 3
@@ -93,7 +93,7 @@ def find_win(board):
                 == board[i1 + (2 * change_i)][j1 + (2 * change_j)]
                 == board[i2][j2]):
             return {
-                "color": COLOR_NAMES[board[i][j]],
+                "winner": COLOR_NAMES[board[i][j]] + " wins!",
                 "point1": (j1 * slot_size + slot_size // 2 + extra_space,
                            i1 * slot_size + slot_size // 2 + extra_space),
                 "point2": (j2 * slot_size + slot_size // 2 + extra_space,
@@ -101,12 +101,13 @@ def find_win(board):
             }
         return None
 
+    num_empty = 0       # count the number of empty slots in case there are none left (a tie)
     for i in range(len(board) - 1, -1, -1):
         for j in range(len(board[i]) - 1, -1, -1):
             if board[i][j] == BACKGROUND_COLOR:
+                num_empty += 1
                 continue    # prevents another indentation level
-            # The if statements prevent out of bounds errors
-            if i <= 2:
+            if i <= 2:      # The if statements prevent out of bounds errors
                 if (win := compare_coins(i, j, i + 3, j)) is not None:    # vertical win
                     return win
                 elif j <= 3 and (win := compare_coins(i, j, i + 3, j + 3)) is not None:  # Negative slope diagonal win
@@ -115,6 +116,8 @@ def find_win(board):
                     return win
             elif j <= 3 and (win := compare_coins(i, j, i, j + 3)) is not None:     # Horizontal win
                 return win
+    if num_empty == 0:      # if there are no empty slots and no win, then there's a tie
+        return {"winner": "Tie", "point1": (0, 0), "point2": (0, 0)}    # (0, 0) for both points so no line is visible
     return None
 
 
@@ -202,7 +205,7 @@ def main_game(screen, board=None):
         screen.blit(COIN_SURFACES[current_color], (pygame.mouse.get_pos()[0] - slot_size // 2, extra_space - slot_size))
         screen.blit(board_surface, (extra_space, extra_space))
         pygame.display.flip()
-        if (win := find_win(board)) is None:
+        if (win := find_win_or_tie(board)) is None:
             continue
         try:
             os.remove(FILE_PATH)    # delete save file because game has been won
@@ -215,7 +218,7 @@ def main_game(screen, board=None):
             (pygame.mouse.get_pos()[0], extra_space - slot_size // 2),
             (slot_size // 2) - (slot_size // 20)
         )
-        win_screen(screen, winning_surface, win["color"])
+        win_screen(screen, winning_surface, win["winner"])
         main_loop = False
 
 
