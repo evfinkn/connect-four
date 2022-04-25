@@ -4,15 +4,13 @@ import pygame
 
 
 class Text:
-    def __init__(self, font: pygame.font.Font | tuple | None,
+    def __init__(self, font: pygame.font.Font | tuple,
                  text: str | bytes, color: Any, *, antialias: bool = True,
                  background: Any | None = None, center: tuple = None):
         if isinstance(font, pygame.font.Font):
             self.font = font
         elif isinstance(font, tuple):
             self.font = pygame.font.Font(font[0], font[1])
-        else:
-            self.font = pygame.font.Font(None, 0)
         self.text = text
         self.color = color
         self.antialias = antialias
