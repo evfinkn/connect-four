@@ -56,19 +56,19 @@ for x in range(6):      # Draw SLOT_SURFACE (1 empty square of the grid) onto ea
         GRID_SURFACE.blit(SLOT_SURFACE, (slot_size * y, slot_size * x))
 
 title = pygameutil.Text((pygame.font.get_default_font(), slot_size), "Connect Four", GRID_COLOR)
-title.rect.center = ((width + extra_space * 2) // 2, (height + extra_space * 2) // 4)
+title.rect.center = (width // 2 + extra_space, height // 4 + extra_space // 2)
 
 # Creating the button for starting a new game
 new_game_text = pygameutil.Text((pygame.font.get_default_font(), slot_size // 2), "New Game", BACKGROUND_COLOR)
-new_game_text.rect.center = ((width + extra_space * 2) // 2, (height + extra_space * 2) // 2)
+new_game_text.rect.center = (width // 2 + extra_space, height // 2 + extra_space)
 new_game_button = pygameutil.Button(new_game_text, GRID_COLOR, LIGHTER_GRID_COLOR)
-new_game_button.rect = pygame.Rect((width + extra_space * 2) // 2 - int(slot_size * 1.5), (height + extra_space * 2) // 2 - extra_space, slot_size * 3, slot_size)
+new_game_button.rect = pygame.Rect(width // 2 + extra_space - slot_size * 3 // 2, height // 2, slot_size * 3, slot_size)
 
 # Creating the button for loading the game
 load_game_text = pygameutil.Text((pygame.font.get_default_font(), slot_size // 2), "Load Game", BACKGROUND_COLOR)
-load_game_text.rect.center = ((width + extra_space * 2) // 2, (height + extra_space * 2) // 2 + extra_space * 3)
+load_game_text.rect.center = (width // 2 + extra_space, height // 2 + extra_space * 4)
 load_game_button = pygameutil.Button(load_game_text, GRID_COLOR, LIGHTER_GRID_COLOR)
-load_game_button.rect = pygame.Rect((width + extra_space * 2) // 2 - int(slot_size * 1.5), (height + extra_space * 2) // 2 + extra_space * 2, slot_size * 3, slot_size)
+load_game_button.rect = pygame.Rect(width // 2 + extra_space - slot_size * 3 // 2, height // 2 + extra_space * 3, slot_size * 3, slot_size)
 
 CLOCK = pygame.time.Clock()
 FPS = 60
