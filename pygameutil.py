@@ -20,7 +20,6 @@ class Text:
             self.rect = self.surface.get_rect()
         else:
             self.rect = self.surface.get_rect(center=center)
-        self.center = self.rect.center
 
     def draw(self, surface):
         surface.blit(self.surface, self.rect)
