@@ -48,7 +48,7 @@ class Button:
         if len(args) == 1:
             return self.rect.collidepoint(args[0])
         else:
-            return self.rect.collidepoint(args[0], args[1])
+            return self.rect.collidepoint(*args)
 
     def draw(self, surface):
         if self:
