@@ -210,7 +210,7 @@ def main_game(screen, board=None):
         pygame.draw.line(winning_surface, BACKGROUND_COLOR, win["point1"], win["point2"], 5)
         pygame.draw.circle(     # draws over the hovering coin at top of screen since game is over
             winning_surface, BACKGROUND_COLOR,
-            (pygame.mouse.get_pos()[0], 0),
+            (pygame.mouse.get_pos()[0], extra_space - slot_size // 2),
             (slot_size // 2) - (slot_size // 20)
         )
         win_screen(screen, winning_surface, win["color"])
