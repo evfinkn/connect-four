@@ -17,3 +17,4 @@
 - [ ] Make extra_space independent of slot_size in usages
 -->
 - [ ] Stop game if board is full and there is no win
+- [x] Make Button.click() accept args instead of passing args in __init__()

@@ -26,9 +26,9 @@ class Text:
 
 
 class Button:
-                 onclick: Callable = None, *args):
     def __init__(self, text: Text, inactive: Any, active: Any,
                  rect: pygame.Rect | tuple | None = None,
+                 onclick: Callable = lambda: None):
         self.text = text
         self.inactive = inactive
         self.active = active
@@ -39,7 +39,6 @@ class Button:
         else:
             self.rect = self.text.rect
         self.onclick = onclick
-        self.args = args
 
     def __bool__(self):
         return self.collidepoint(pygame.mouse.get_pos())
@@ -57,6 +56,5 @@ class Button:
             pygame.draw.rect(surface, self.inactive, self.rect)
         surface.blit(self.text.surface, self.text.rect)
 
-    def click(self):
-        if self.onclick is not None:
-            self.onclick(*self.args)
+    def click(self, *args, **kwargs):
+        self.onclick(*args, **kwargs)

@@ -145,10 +145,6 @@ def load_game(file_path, screen):
 # The function to run the main menu screen
 def main_menu(screen):
     main_loop = True
-    new_game_button.onclick = main_game
-    new_game_button.args = (screen,)
-    load_game_button.onclick = load_game
-    load_game_button.args = (FILE_PATH, screen)
     while main_loop:
         CLOCK.tick(FPS)
 
@@ -163,11 +159,11 @@ def main_menu(screen):
                 main_loop = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if new_game_button:
-                    new_game_button.click()
+                    new_game_button.click(screen)
                     main_loop = False
                 # Load the saved game if click on Load Game button
                 elif load_game_button:
-                    load_game_button.click()
+                    load_game_button.click(FILE_PATH, screen)
                     main_loop = False
 
 
@@ -233,12 +229,14 @@ def win_screen(screen, winning_surface, winner):
             # if the user quits, exit the loop
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 main_loop = False
-            # If mouseclick on the New Game button, start the game
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:      # If mouseclick on the New Game button, start the game
                 if event.button == 1 and new_game_button:
-                    new_game_button.click()
+                    new_game_button.click(screen)
                     main_loop = False
 
+
+new_game_button.onclick = main_game
+load_game_button.onclick = load_game
 
 # Create the variable for the screen and start the game
 window = pygame.display.set_mode((width + extra_space * 2, height + extra_space * 2))
