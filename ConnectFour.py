@@ -77,7 +77,7 @@ FPS = 60
 # Finds the spot that the coin is placed on mouse click
 def find_spot(board, mouse_pos):
     if extra_space < mouse_pos[0] < width + extra_space:
-        column = (mouse_pos[0] + extra_space) // slot_size - 1
+        column = (mouse_pos[0] - extra_space) // slot_size
         for i in range(len(board) - 1, -1, -1):
             if board[i][column] == BACKGROUND_COLOR:
                 return i, column
@@ -197,7 +197,7 @@ def main_game(screen, board=None):
                     turn *= -1
         screen.fill(BACKGROUND_COLOR)
         # Draw the coin hovering at the top of the screen
-        screen.blit(COIN_SURFACES[current_color], (pygame.mouse.get_pos()[0] - slot_size // 2, -extra_space))
+        screen.blit(COIN_SURFACES[current_color], (pygame.mouse.get_pos()[0] - slot_size // 2, extra_space - slot_size))
         screen.blit(board_surface, (extra_space, extra_space))
         pygame.display.flip()
         if (win := find_win(board)) is None:
