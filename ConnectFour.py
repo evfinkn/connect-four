@@ -172,10 +172,10 @@ def main_menu(screen):
 
 # The main game function
 def main_game(screen, board=None):
-    if board is None:
+    if board is None:   # No saved game was loaded, so create an empty board
         board = [[BACKGROUND_COLOR for _ in range(7)] for _ in range(6)]
-    board_surface = GRID_SURFACE.copy()
-    for i in range(6):
+    board_surface = GRID_SURFACE.copy()     # Copy empty grid instead of redrawing it because faster
+    for i in range(6):      # Draw the coins from the loaded game (doesn't draw anything if it's a new game)
         for j in range(7):
             if board[i][j] != BACKGROUND_COLOR:
                 board_surface.blit(COIN_SURFACES[board[i][j]], (slot_size * j, slot_size * i))
