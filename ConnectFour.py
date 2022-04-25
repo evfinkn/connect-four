@@ -24,7 +24,10 @@ extra_space = slot_size // 2
 height = slot_size * 6
 
 # Coin surfaces
-COIN_SURFACES = {   # Dictionary for simplier access, with color as key and Surface as value
+# Using dictionary prevents needing separate variables for the coin
+# surfs as well as needing if statements to determine which surf to use.
+# Colors (tuples of 3 ints) are the keys and Surfaces are the values
+COIN_SURFACES = {
     P1_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
     P2_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
     BACKGROUND_COLOR: pygame.Surface((slot_size, slot_size))
@@ -48,7 +51,7 @@ pygame.draw.circle(
 GRID_SURFACE = pygame.Surface((width, height))      # The actual Connect Four board
 GRID_SURFACE.fill(BACKGROUND_COLOR)
 GRID_SURFACE.set_colorkey(BACKGROUND_COLOR)
-for x in range(6):
+for x in range(6):      # Draw SLOT_SURFACE (1 empty square of the grid) onto each position of the grid
     for y in range(7):
         GRID_SURFACE.blit(SLOT_SURFACE, (slot_size * y, slot_size * x))
 
@@ -157,11 +160,10 @@ def main_menu(screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 main_loop = False
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if new_game_button:
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:    # button 1 is left click
+                if new_game_button:     # a Button evaluates to True if the mouse is hovering over it
                     new_game_button.click(screen)
                     main_loop = False
-                # Load the saved game if click on Load Game button
                 elif load_game_button:
                     load_game_button.click(FILE_PATH, screen)
                     main_loop = False
