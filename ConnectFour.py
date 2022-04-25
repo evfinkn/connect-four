@@ -29,8 +29,7 @@ height = slot_size * 6 + extra_space * 2
 # Colors (tuples of 3 ints) are the keys and Surfaces are the values
 COIN_SURFACES = {
     P1_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
-    P2_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
-    BACKGROUND_COLOR: pygame.Surface((slot_size, slot_size))
+    P2_COIN_COLOR: pygame.Surface((slot_size, slot_size))
 }
 for coin_color, coin_surface in COIN_SURFACES.items():  # Make surfaces transparent and draw the coin on it
     coin_surface.fill(BACKGROUND_COLOR)
@@ -178,7 +177,8 @@ def main_game(screen, board=None):
     board_surface = GRID_SURFACE.copy()
     for i in range(6):
         for j in range(7):
-            board_surface.blit(COIN_SURFACES[board[i][j]], (slot_size * j, slot_size * i))
+            if board[i][j] != BACKGROUND_COLOR:
+                board_surface.blit(COIN_SURFACES[board[i][j]], (slot_size * j, slot_size * i))
     main_loop = True
     turn = random.choice((-1, 1))
 
