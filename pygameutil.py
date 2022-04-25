@@ -10,7 +10,7 @@ class Text:
         if isinstance(font, pygame.font.Font):
             self.font = font
         elif isinstance(font, tuple):
-            self.font = pygame.font.Font(font[0], font[1])
+            self.font = pygame.font.Font(*font)
         self.text = text
         self.color = color
         self.antialias = antialias
@@ -44,10 +44,7 @@ class Button:
         return self.collidepoint(pygame.mouse.get_pos())
 
     def collidepoint(self, *args):
-        if len(args) == 1:
-            return self.rect.collidepoint(args[0])
-        else:
-            return self.rect.collidepoint(*args)
+        return self.rect.collidepoint(*args)
 
     def draw(self, surface):
         if self:
