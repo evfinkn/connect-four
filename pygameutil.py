@@ -28,7 +28,7 @@ class Text:
 class Button:
     def __init__(self, text: Text, inactive: Any, active: Any,
                  rect: pygame.Rect | tuple | None = None,
-                 onclick: Callable = lambda: None):
+                 onclick: Callable = lambda *args, **kwargs: None):
         self.text = text
         self.inactive = inactive
         self.active = active
