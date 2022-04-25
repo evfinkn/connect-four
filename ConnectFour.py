@@ -95,8 +95,10 @@ def find_win(board):
                 == board[i2][j2]):
             return {
                 "color": COLOR_NAMES[board[i][j]],
-                "point1": ((j1 + 1) * slot_size, (i1 + 1) * slot_size),
-                "point2": ((j2 + 1) * slot_size, (i2 + 1) * slot_size)
+                "point1": (j1 * slot_size + slot_size // 2 + extra_space,
+                           i1 * slot_size + slot_size // 2 + extra_space),
+                "point2": (j2 * slot_size + slot_size // 2 + extra_space,
+                           i2 * slot_size + slot_size // 2 + extra_space)
             }
         return None
 
