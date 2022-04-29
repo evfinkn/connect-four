@@ -1,13 +1,13 @@
 ### To-do list
 - [ ] Make resizable window
 - [ ] Finish README.md
-- [ ] Stop game if board is full and there is no win
 - [ ] Make Text accept pygame.freetype.Font for font
 - [ ] Make screen 1 slot_size taller (so window is square)
   - [ ] Fix win_screen
     - [ ] Show "Color wins!" in new extra space at top
     - [ ] Move new game button to top as well
 - [ ] Improve saving and loading (use a module?)
+- [x] Stop game if board is full and there is no win
 - [x] Fix warning messages
   - [x] Warning when writing file after closing window
   - [x] Warning when game is won
