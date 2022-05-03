@@ -3,6 +3,7 @@ import pygame
 import pygameutil
 import random
 import os
+import ast
 
 pygame.init()
 random.seed()
@@ -121,29 +122,19 @@ def find_win_or_tie(board):
     return None
 
 
+# the usage of repr and ast.liter_eval to store and retrieve objects was taken from
+# Mark Amery's answer to this question: https://stackoverflow.com/a/15721401/18413833
 # Writes the grid to a file in order to save the game
 def save_game(file_path, board):
     with open(file_path, "w") as file:
-        for i in range(len(board)):
-            for j in range(len(board[i])):
-                file.write(str(board[i][j][0]) + "\n")
-                file.write(str(board[i][j][1]) + "\n")
-                file.write(str(board[i][j][2]) + "\n")
+        file.write(repr(board))
 
 
 # Reads the file in order to load the game
 def load_game(file_path, screen):
     try:
-        grid = []
         with open(file_path, "r") as file:
-            for i in range(6):
-                grid.append([])
-                for j in range(7):
-                    # [:-1] to ignore \n
-                    red = int(file.readline()[:-1])
-                    green = int(file.readline()[:-1])
-                    blue = int(file.readline()[:-1])
-                    grid[i].append((red, green, blue))
+            grid = ast.literal_eval(file.read())
     except FileNotFoundError:
         grid = [[BACKGROUND_COLOR for _ in range(7)] for _ in range(6)]
     main_game(screen, grid)
