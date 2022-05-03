@@ -6,7 +6,7 @@
   - [ ] Fix win_screen
     - [ ] Show "Color wins!" in new extra space at top
     - [ ] Move new game button to top as well
-- [ ] Improve saving and loading (use a module?)
+- [x] Improve saving and loading
 - [x] Stop game if board is full and there is no win
 - [x] Fix warning messages
   - [x] Warning when writing file after closing window
