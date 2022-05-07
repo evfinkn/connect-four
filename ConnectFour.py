@@ -1,5 +1,4 @@
-import pygame
-# https://www.pygame.org
+import pygame   # https://www.pygame.org
 import pygameutil
 import random
 import os
@@ -16,11 +15,10 @@ GRID_COLOR = (0, 0, 122)
 LIGHTER_GRID_COLOR = (0, 37, 161)
 P1_COIN_COLOR = (255, 0, 0)
 P2_COIN_COLOR = (255, 255, 0)
-COLOR_NAMES = {P1_COIN_COLOR: "Red", P2_COIN_COLOR: "Yellow"}   # Dictionary of names of colors for winning color text
+COLOR_NAMES = {P1_COIN_COLOR: "Red", P2_COIN_COLOR: "Yellow"}   # Used to display which color won
 
-# Create the variables for the size of the grid, extra space on sides, and screen
-slot_size = 50
-extra_space = slot_size // 2
+slot_size = 50      # width for one slot in the grid
+extra_space = slot_size // 2        # padding around the grid
 width = slot_size * 7 + extra_space * 2
 height = slot_size * 6 + extra_space * 2
 
@@ -32,7 +30,7 @@ COIN_SURFACES = {
     P1_COIN_COLOR: pygame.Surface((slot_size, slot_size)),
     P2_COIN_COLOR: pygame.Surface((slot_size, slot_size))
 }
-for coin_color, coin_surface in COIN_SURFACES.items():  # Make surfaces transparent and draw the coin on it
+for coin_color, coin_surface in COIN_SURFACES.items():  # Make surfaces transparent and draw the coin on each one
     coin_surface.fill(BACKGROUND_COLOR)
     coin_surface.set_colorkey(BACKGROUND_COLOR)
     pygame.draw.circle(
@@ -233,6 +231,7 @@ def win_screen(screen, winning_surface, winner):
                     main_loop = False
 
 
+# set the functions called when buttons are clicked
 new_game_button.onclick = main_game
 load_game_button.onclick = load_game
 
