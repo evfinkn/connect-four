@@ -13,8 +13,8 @@ FILE_PATH = "grid.txt"    # save file
 BACKGROUND_COLOR = (255, 255, 255)
 GRID_COLOR = (0, 0, 122)
 LIGHTER_GRID_COLOR = (0, 37, 161)
-P1_COIN_COLOR = (255, 0, 0)
-P2_COIN_COLOR = (255, 255, 0)
+P1_COIN_COLOR = (246, 0, 0)
+P2_COIN_COLOR = (250, 230, 0)
 COLOR_NAMES = {P1_COIN_COLOR: "Red", P2_COIN_COLOR: "Yellow"}   # Used to display which color won
 
 slot_size = 50      # width for one slot in the grid
