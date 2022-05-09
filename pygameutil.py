@@ -6,7 +6,7 @@ import pygame
 class Text:
     def __init__(self, font: pygame.font.Font | tuple,
                  text: str | bytes, color: Any, *, antialias: bool = True,
-                 background: Any | None = None, center: tuple = None):
+                 background: Any | None = None):
         if isinstance(font, pygame.font.Font):
             self.font = font
         elif isinstance(font, tuple):
@@ -16,10 +16,7 @@ class Text:
         self.antialias = antialias
         self.background = background
         self.surface = self.font.render(text, antialias, color, background)
-        if center is None:
-            self.rect = self.surface.get_rect()
-        else:
-            self.rect = self.surface.get_rect(center=center)
+        self.rect = self.surface.get_rect()
 
     def draw(self, surface):
         surface.blit(self.surface, self.rect)
