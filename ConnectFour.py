@@ -15,7 +15,6 @@ GRID_COLOR = (0, 0, 122)
 LIGHTER_GRID_COLOR = (0, 37, 161)
 P1_COIN_COLOR = (246, 0, 0)
 P2_COIN_COLOR = (250, 230, 0)
-COLOR_NAMES = {P1_COIN_COLOR: "Red", P2_COIN_COLOR: "Yellow"}   # Used to display which color won
 
 slot_size = 50      # width for one slot in the grid
 extra_space = slot_size // 2        # padding around the grid
@@ -91,13 +90,8 @@ def find_win_or_tie(board):
                 == board[i1 + change_i][j1 + change_j]
                 == board[i1 + (2 * change_i)][j1 + (2 * change_j)]
                 == board[i2][j2]):
-            return {
-                "winner": COLOR_NAMES[board[i][j]] + " wins!",
-                "point1": (j1 * slot_size + slot_size // 2 + extra_space,
-                           i1 * slot_size + slot_size // 2 + extra_space),
-                "point2": (j2 * slot_size + slot_size // 2 + extra_space,
-                           i2 * slot_size + slot_size // 2 + extra_space)
-            }
+            return ((j1 * slot_size + slot_size // 2 + extra_space, i1 * slot_size + slot_size * 3 // 2 + extra_space),
+                    (j2 * slot_size + slot_size // 2 + extra_space, i2 * slot_size + slot_size * 3 // 2 + extra_space))
         return None
 
     num_empty = 0       # count the number of empty slots in case there are none left (a tie)
@@ -116,7 +110,7 @@ def find_win_or_tie(board):
             elif j <= 3 and (win := compare_coins(i, j, i, j + 3)) is not None:     # Horizontal win
                 return win
     if num_empty == 0:      # if there are no empty slots and no win, then there's a tie
-        return {"winner": "Tie", "point1": (0, 0), "point2": (0, 0)}    # (0, 0) for both points so no line is visible
+        return (0, 0), (0, 0)  # (0, 0) for both points so no line is visible
     return None
 
 
@@ -201,18 +195,18 @@ def main_game(screen, board=None):
         except FileNotFoundError:
             pass    # file already doesn't exist, so we don't need to do anything
         winning_surface = screen.copy()
-        pygame.draw.line(winning_surface, BACKGROUND_COLOR, win["point1"], win["point2"], 5)
+        pygame.draw.line(winning_surface, BACKGROUND_COLOR, win[0], win[1], 5)
         pygame.draw.circle(     # draws over the hovering coin at top of screen since game is over
             winning_surface, BACKGROUND_COLOR,
             (pygame.mouse.get_pos()[0], extra_space - slot_size // 2),
             (slot_size // 2) - (slot_size // 20)
         )
-        win_screen(screen, winning_surface, win["winner"])
+        win_screen(screen, winning_surface)
         main_loop = False
 
 
 # The function to run the win screen
-def win_screen(screen, winning_surface, winner):
+def win_screen(screen, winning_surface):
     main_loop = True
     while main_loop:
         screen.fill(BACKGROUND_COLOR)       # reset the screen to be redraw

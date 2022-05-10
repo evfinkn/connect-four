@@ -4,8 +4,7 @@
 - [ ] Make Text accept pygame.freetype.Font for font
 - [ ] Make screen 1 slot_size taller (so window is square)
   - [ ] Fix win_screen
-    - [ ] Show "Color wins!" in new extra space at top
-    - [ ] Move new game button to top as well
+  - [ ] Move new game button to top in win_screen
 - [x] Improve saving and loading
 - [x] Stop game if board is full and there is no win
 - [x] Fix warning messages
