@@ -1,7 +1,6 @@
 import pygame   # https://www.pygame.org
 import pygameutil
 import random
-import os
 
 pygame.init()
 random.seed()
