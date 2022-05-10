@@ -2,9 +2,8 @@
 - [ ] Make resizable window
 - [ ] Finish README.md
 - [ ] Make Text accept pygame.freetype.Font for font
-- [ ] Make screen 1 slot_size taller (so window is square)
-  - [ ] Fix win_screen
-  - [ ] Move new game button to top in win_screen
+- [x] Make screen 1 slot_size taller (so window is square)
+  - [x] Move new game button to top in win_screen
 - [x] Improve saving and loading
 - [x] Stop game if board is full and there is no win
 - [x] Fix warning messages
