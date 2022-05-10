@@ -2,12 +2,9 @@ import pygame   # https://www.pygame.org
 import pygameutil
 import random
 import os
-import ast
 
 pygame.init()
 random.seed()
-
-FILE_PATH = "grid.txt"    # save file
 
 # Colors
 BACKGROUND_COLOR = (255, 255, 255)
@@ -66,12 +63,6 @@ new_game_button = pygameutil.Button(new_game_text, GRID_COLOR, LIGHTER_GRID_COLO
 new_game_button.rect = pygame.Rect((width - slot_size * 3) // 2, (height - slot_size) // 2, slot_size * 3, slot_size)
 new_game_text.rect.center = new_game_button.rect.center
 
-# Creating the button for loading the game
-load_game_text = pygameutil.Text(main_menu_text.font, "Load Game", BACKGROUND_COLOR)
-load_game_button = pygameutil.Button(load_game_text, GRID_COLOR, LIGHTER_GRID_COLOR)
-load_game_button.rect = pygame.Rect((width - slot_size * 3) // 2, height // 2 + slot_size, slot_size * 3, slot_size)
-load_game_text.rect.center = load_game_button.rect.center
-
 quit_game_text = pygameutil.Text(main_menu_text.font, "Quit Game", BACKGROUND_COLOR)
 quit_game_button = pygameutil.Button(quit_game_text, GRID_COLOR, LIGHTER_GRID_COLOR)
 quit_game_button.rect = pygame.Rect(extra_space, extra_space - slot_size // 4, slot_size * 7 // 2 - (extra_space - slot_size // 4) // 2, slot_size)
@@ -124,24 +115,6 @@ def find_win_or_tie(board):
     return None
 
 
-# the usage of repr and ast.liter_eval to store and retrieve objects was taken from
-# Mark Amery's answer to this question: https://stackoverflow.com/a/15721401/18413833
-# Writes the grid to a file in order to save the game
-def save_game(file_path, board):
-    with open(file_path, "w") as file:
-        file.write(repr(board))
-
-
-# Reads the file in order to load the game
-def load_game(file_path, screen):
-    try:
-        with open(file_path, "r") as file:
-            grid = ast.literal_eval(file.read())
-    except FileNotFoundError:
-        grid = [[BACKGROUND_COLOR for _ in range(7)] for _ in range(6)]
-    main_game(screen, grid)
-
-
 def quit_game():
     pygame.quit()
     exit(0)
@@ -156,7 +129,6 @@ def main_menu(screen):
         screen.fill(BACKGROUND_COLOR)
         title.draw(screen)
         new_game_button.draw(screen)
-        load_game_button.draw(screen)
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -165,9 +137,6 @@ def main_menu(screen):
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:    # button 1 is left click
                 if new_game_button:     # a Button evaluates to True if the mouse is hovering over it
                     new_game_button.click(screen)
-                    main_loop = False
-                elif load_game_button:
-                    load_game_button.click(FILE_PATH, screen)
                     main_loop = False
 
 
@@ -190,7 +159,6 @@ def main_game(screen, board=None):
         for event in pygame.event.get():
             # If the game is exited out of OR the esc key is pressed, save and end the game
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                save_game(FILE_PATH, board)
                 main_loop = False
             # If mouseclick, find the location and set that spot to the color of the coin if it's valid
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -205,10 +173,6 @@ def main_game(screen, board=None):
         pygame.display.flip()
         if (win := find_win_or_tie(board)) is None:
             continue
-        try:
-            os.remove(FILE_PATH)    # delete save file because game has been won
-        except FileNotFoundError:
-            pass    # file already doesn't exist, so we don't need to do anything
         winning_surface = screen.copy()
         pygame.draw.line(winning_surface, BACKGROUND_COLOR, win[0], win[1], 5)
         pygame.draw.circle(     # draws over the hovering coin at top of screen since game is over
@@ -250,7 +214,6 @@ def win_screen(screen, winning_surface):
 # set the functions called when buttons are clicked
 main_menu_button.onclick = main_menu
 new_game_button.onclick = main_game
-load_game_button.onclick = load_game
 quit_game_button.onclick = quit_game
 
 # Create the variable for the screen and start the game
