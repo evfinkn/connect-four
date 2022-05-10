@@ -19,7 +19,7 @@ P2_COIN_COLOR = (250, 230, 0)
 slot_size = 50      # width for one slot in the grid
 extra_space = slot_size // 2        # padding around the grid
 width = slot_size * 7 + extra_space * 2
-height = slot_size * 6 + extra_space * 2
+height = slot_size * 7 + extra_space * 2
 
 # Coin surfaces
 # Using dictionary prevents needing separate variables for the coin
@@ -200,8 +200,8 @@ def main_game(screen, board=None):
                     turn *= -1
         screen.fill(BACKGROUND_COLOR)
         # Draw the coin hovering at the top of the screen
-        screen.blit(COIN_SURFACES[current_color], (pygame.mouse.get_pos()[0] - slot_size // 2, extra_space - slot_size))
-        screen.blit(board_surface, (extra_space, extra_space))
+        screen.blit(COIN_SURFACES[current_color], (pygame.mouse.get_pos()[0] - slot_size // 2, extra_space))
+        screen.blit(board_surface, (extra_space, extra_space + slot_size))
         pygame.display.flip()
         if (win := find_win_or_tie(board)) is None:
             continue
@@ -213,7 +213,7 @@ def main_game(screen, board=None):
         pygame.draw.line(winning_surface, BACKGROUND_COLOR, win[0], win[1], 5)
         pygame.draw.circle(     # draws over the hovering coin at top of screen since game is over
             winning_surface, BACKGROUND_COLOR,
-            (pygame.mouse.get_pos()[0], extra_space - slot_size // 2),
+            (pygame.mouse.get_pos()[0], extra_space + slot_size // 2),
             (slot_size // 2) - (slot_size // 20)
         )
         win_screen(screen, winning_surface)
@@ -222,11 +222,16 @@ def main_game(screen, board=None):
 
 # The function to run the win screen
 def win_screen(screen, winning_surface):
+    new_game_button.rect.width = slot_size * 7 // 2 - (extra_space - slot_size // 4) // 2
+    new_game_button.rect.topright = (width - extra_space, extra_space - slot_size // 4)
+    new_game_text.rect.center = new_game_button.rect.center
+
     main_loop = True
     while main_loop:
         screen.fill(BACKGROUND_COLOR)       # reset the screen to be redraw
         screen.blit(winning_surface, (0, 0))    # draw the board from when the game was won
         new_game_button.draw(screen)
+        quit_game_button.draw(screen)
         pygame.display.flip()      # updates the screen to display what was drawn
 
         CLOCK.tick(FPS)
@@ -238,6 +243,8 @@ def win_screen(screen, winning_surface):
                 if event.button == 1 and new_game_button:
                     new_game_button.click(screen)
                     main_loop = False
+                elif event.button == 1 and quit_game_button:
+                    quit_game_button.click()
 
 
 # set the functions called when buttons are clicked
