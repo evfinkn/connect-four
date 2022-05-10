@@ -52,18 +52,13 @@ for x in range(6):      # Draw SLOT_SURFACE (1 empty square of the grid) onto ea
 title = pygameutil.Text((pygame.font.get_default_font(), slot_size), "Connect Four", GRID_COLOR)
 title.rect.center = (width // 2, height // 4)
 
-main_menu_text = pygameutil.Text((pygame.font.get_default_font(), slot_size // 2), "Main Menu", BACKGROUND_COLOR)
-main_menu_button = pygameutil.Button(main_menu_text, GRID_COLOR, LIGHTER_GRID_COLOR)
-main_menu_button.rect = pygame.Rect(extra_space, extra_space - slot_size // 4, slot_size * 7 // 2 - (extra_space - slot_size // 4) // 2, slot_size)
-main_menu_text.rect.center = main_menu_button.rect.center
-
 # Creating the button for starting a new game
-new_game_text = pygameutil.Text(main_menu_text.font, "New Game", BACKGROUND_COLOR)
+new_game_text = pygameutil.Text((pygame.font.get_default_font(), slot_size // 2), "New Game", BACKGROUND_COLOR)
 new_game_button = pygameutil.Button(new_game_text, GRID_COLOR, LIGHTER_GRID_COLOR)
 new_game_button.rect = pygame.Rect((width - slot_size * 3) // 2, (height - slot_size) // 2, slot_size * 3, slot_size)
 new_game_text.rect.center = new_game_button.rect.center
 
-quit_game_text = pygameutil.Text(main_menu_text.font, "Quit Game", BACKGROUND_COLOR)
+quit_game_text = pygameutil.Text(new_game_text.font, "Quit Game", BACKGROUND_COLOR)
 quit_game_button = pygameutil.Button(quit_game_text, GRID_COLOR, LIGHTER_GRID_COLOR)
 quit_game_button.rect = pygame.Rect(extra_space, extra_space - slot_size // 4, slot_size * 7 // 2 - (extra_space - slot_size // 4) // 2, slot_size)
 quit_game_text.rect.center = quit_game_button.rect.center
@@ -212,7 +207,6 @@ def win_screen(screen, winning_surface):
 
 
 # set the functions called when buttons are clicked
-main_menu_button.onclick = main_menu
 new_game_button.onclick = main_game
 quit_game_button.onclick = quit_game
 
