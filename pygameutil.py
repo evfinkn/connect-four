@@ -52,3 +52,53 @@ class Button:
 
     def click(self, *args, **kwargs):
         self.onclick(*args, **kwargs)
+
+
+class GridBoard:
+    def __init__(self, row, col, *, fill=None, grid=None, default_grid=None):
+        # instead of using fill for __delitem__, just replace item at that index with the item in default_grid
+        self.default_grid = [[fill] * col] * row if default_grid is None else default_grid
+        self.grid = self.default_grid.copy() if grid is None else grid
+
+    def reset(self):
+        self.grid = self.default_grid.copy()
+
+    def delete(self, row, col):
+        self.grid[row][col] = self.default_grid[row][col]
+
+    def get_pos(self, mouse_pos, screen_size, pos_length):
+        pos = -1
+        if 0 < mouse_pos[0] < screen_size[0] and 0 < mouse_pos[1] < screen_size[1]:
+            row = mouse_pos[1] // pos_length
+            col = mouse_pos[0] // pos_length
+            if 0 <= row < len(self.grid) and 0 <= col < len(self.grid[0]):
+                pos = (row, col)
+        return pos
+
+    def line(self, *args):
+        if len(args) == 0:
+            raise TypeError("line expected at least 1 argument, got 0")
+        start, stop, step = (0, 0), (0, 0), (1, 1)
+        x_indices = [x for x in range(start[0], stop[0], step[0])]
+        y_indices = [y for y in range(start[1], stop[1], step[1])]
+        items = []
+        for k in range(min(len(x_indices), len(y_indices))):
+            items.append(self.grid[x_indices[k]][y_indices[k]])
+        return items
+
+    def __contains__(self, value):
+        return any(value in row for row in self.grid)
+
+    def __getitem__(self, key):
+        if isinstance(key, tuple):
+            x = slice(None, None, None) if len(key) == 0 else key[0]
+            y = slice(None, None, None) if len(key) < 2 else key[1]
+            if isinstance(x, int):
+                return self.grid[x][y]
+            sliced = []
+            rows = self.grid[x]
+            for row in rows:
+                sliced.append(row[y])
+            return sliced
+        else:
+            return self.grid[key]
