@@ -25,7 +25,7 @@ class Text:
 class Button:
     def __init__(self, text: Text, inactive: Any, active: Any,
                  rect: pygame.Rect | tuple | None = None,
-                 onclick: Callable = lambda *args, **kwargs: None):
+                 onclick: Callable = None):
         self.text = text
         self.inactive = inactive
         self.active = active
@@ -35,7 +35,7 @@ class Button:
             self.rect = pygame.Rect(*rect)
         else:
             self.rect = self.text.rect
-        self.onclick = onclick
+        self.onclick = (lambda *args, **kwargs: None) if onclick is None else onclick
 
     def __bool__(self):
         return self.collidepoint(pygame.mouse.get_pos())
@@ -55,10 +55,10 @@ class Button:
 
 
 class Grid:
-    def __init__(self, row, col, *, fill=None, grid=None):
+    def __init__(self, grid=None, *, row=0, col=0, fill=None):
         self.grid = [[fill] * col] * row if grid is None else grid
 
-    # region list magic methods
+    # region list special methods
     # Special method lookup bypasses __getattribute__ and __getattr__, so define explicitly
 
     # region Comparison methods
@@ -79,32 +79,29 @@ class Grid:
 
     def __ge__(self, other):
         return self.grid >= other
-
     # endregion
 
-    # region Iteration methods
     def __iter__(self):
         return iter(self.grid)
 
-    def __reversed__(self):
-        return reversed(self.grid)
-    # endregion
+    # def __reversed__(self):
+    #     # reversed_grid = [[] for _ in range(len(self))]
+    #     # for i in range(len(reversed_grid)):
+    #     #     reversed_grid[i].extend(reversed(self[i]))
+    #     # return reversed(reversed_grid)
+    #     return reversed(self.grid)
 
     def __len__(self):
         return len(self.grid)
-
-    def __contains__(self, value):
-        return value in self.grid
-
     # endregion
 
-    def __getattr__(self, name):
-        return getattr(self.grid, name)
+    def __contains__(self, value):
+        return value in self.grid or any(value in row for row in self.grid)
 
     def __getitem__(self, key):
         if isinstance(key, tuple):
-            x = slice(None, None, None) if len(key) == 0 else key[0]
-            y = slice(None, None, None) if len(key) < 2 else key[1]
+            x = slice(None) if len(key) == 0 else key[0]
+            y = slice(None) if len(key) < 2 else key[1]
             if isinstance(x, int):
                 return self.grid[x][y]
             sliced = []
@@ -119,18 +116,18 @@ class Grid:
         if isinstance(key, int):
             pass
 
-    def __delitem__(self, *args):
-        if isinstance(args[0], tuple):
-            args = args[0]
-        if len(args) == 1:
-            del self.grid[args[0]]
-        else:
-            if isinstance(args[0], slice):
-                sliced = self.grid[args[0]]
-                for i in range(len(sliced)):
-                    del sliced[i][args[1]]
-            else:
-                del self.grid[args[0]][args[1]]
+    # def __delitem__(self, *args):
+    #     if isinstance(args[0], tuple):
+    #         args = args[0]
+    #     if len(args) == 1:
+    #         del self.grid[args[0]]
+    #     else:
+    #         if isinstance(args[0], slice):
+    #             sliced = self.grid[args[0]]
+    #             for i in range(len(sliced)):
+    #                 del sliced[i][args[1]]
+    #         else:
+    #             del self.grid[args[0]][args[1]]
 
     def __str__(self):
         values = [[repr(value) for value in row] for row in self]
@@ -146,11 +143,30 @@ class Grid:
         string += "]"
         return string
 
+    # def remove(self, value):
+    #     del self[self.index(value)]
+
     def index(self, *args):
         value = args[0]
-        start = 0 if len(args) < 2 else args[1]
-        end = len(self.grid) if len(args) < 3 else args[2]
-
+        start = slice(None) if len(args) < 2 else args[1]
+        stop = slice(None) if len(args) < 3 else args[2]
+        if isinstance(start, int):
+            x_offset = start
+        else:
+            x_offset = 0 if start.start is None else start.start
+        if isinstance(stop, int):
+            y_offset = stop
+        else:
+            y_offset = 0 if stop.start is None else stop.start
+        search_grid = self[start, stop]
+        if value in search_grid:
+            return x_offset + search_grid.index(value)
+        if len(search_grid) != 0 and isinstance(search_grid[0], list):
+            for x in range(len(search_grid)):
+                for y in range(len(search_grid[x])):
+                    if search_grid[x][y] == value:
+                        return x_offset + x, y_offset + y
+        raise ValueError(f"{value} is not in grid")
 
     def count(self, value):
         def recur_count(array):
@@ -165,13 +181,24 @@ class Grid:
 
         return recur_count(self.grid)
 
+    # def reverse(self):
+    #     self.flip(True, True)
+
+    def copy(self):
+        return Grid(self.grid.copy())
+
+    # make work with slice objects
     def line(self, *args):
-        if len(args) == 0:
-            raise TypeError("line expected at least 1 argument, got 0")
+        # if len(args) == 0:
+        #     raise TypeError("line expected at least 1 argument, got 0")
         start, stop, step = (0, 0), (len(self), len(self[0])), (1, 1)
         if len(args) == 1:
-            pass
-
+            stop = (args[0],) * 2 if isinstance(args[0], int) else args[0]
+        elif len(args) >= 2:
+            start = (args[0],) * 2 if isinstance(args[0], int) else args[0]
+            stop = (args[1],) * 2 if isinstance(args[1], int) else args[1]
+            if len(args) == 3:
+                step = (args[2],) * 2 if isinstance(args[2], int) else args[2]
         x_indices = [x for x in range(start[0], stop[0], step[0])]
         y_indices = [y for y in range(start[1], stop[1], step[1])]
         items = []
@@ -182,16 +209,29 @@ class Grid:
     def positions(self):
         return [(x, y) for x in range(len(self)) for y in range(len(self[0]))]
 
+    # should horizontal default to True?
+    def flip(self, h=False, v=False):
+        if h:
+            for row in self:
+                row.reverse()
+        if v:
+            self.grid.reverse()
+
+    # maybe have this?
+    # either set the value to value returned by func if not None or don't change values
+    # def foreach(self, func):
+    #     pass
+
 
 class GridBoard(Grid):
-    # take arguments for Board
-    def __init__(self, row, col, *, fill=None, grid=None, default_grid=None):
-        # instead of using fill for __delitem__, just replace item at that index with the item in default
-        super().__init__(row, col, fill=fill, grid=grid)
-        self.default = Grid(row, col, fill=fill, grid=default_grid)
-
-    def __contains__(self, value):
-        return any(value in row for row in self.grid) or value in self.grid
+    # take arguments for Board when Board is implemented
+    def __init__(self, grid=None, default_grid=None, *, row=0, col=0, fill=None):
+        if isinstance(grid, Grid):
+            grid = list(grid)
+        if isinstance(default_grid, Grid):
+            default_grid = list(default_grid)
+        super().__init__(grid, row=row, col=col, fill=fill)
+        self.default = Grid(default_grid, row=len(self.grid), col=len(self.grid[0]), fill=fill)
 
     # add update method to update surface
     def __setitem__(self, key, value):
@@ -221,7 +261,8 @@ class GridBoard(Grid):
         return GridBoard(len(self), len(self[0]), grid=self.copy(), default_grid=self.default.copy())
 
     def remove(self, value):
-        pass
+        del self[self.index(value)]
+        # self.update()
 
     # add update method to update surface
     def clear(self, *args):
